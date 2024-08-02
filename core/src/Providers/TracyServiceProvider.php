@@ -5,6 +5,10 @@ use EvolutionCMS\Tracy\Debugger;
 use EvolutionCMS\Interfaces\TracyPanel;
 use Tracy\IBarPanel;
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 class TracyServiceProvider extends ServiceProvider
 {
     /**
@@ -80,28 +84,27 @@ class TracyServiceProvider extends ServiceProvider
         if (\is_string($flag)) {
             $newFlag = false;
 
-            switch ($flag){
+            switch ($flag) {
                 case 'manager':
-                    if($this->app->isLoggedIn('mgr')){
+                    if($this->app->isLoggedIn('mgr')) {
                         $newFlag = true;
                     }
                     break;
                 case 'admin':
-                    if($this->app->isLoggedIn('mgr') && $_SESSION['mgrRole'] == 1){
+                    if($this->app->isLoggedIn('mgr') && isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1) {
                         $newFlag = true;
                     }
                     break;
                 case 'adminfrontonly':
-                    if ($this->app->isLoggedIn('mgr') && $_SESSION['mgrRole'] == 1 && ($_SERVER['SCRIPT_NAME'] != '/manager/index.php' &&  $_SERVER['SCRIPT_NAME'] !='/manager/media/browser/mcpuk/browse.php')) {
+                    if ($this->app->isLoggedIn('mgr') && isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1 && ($_SERVER['SCRIPT_NAME'] != '/manager/index.php' &&  $_SERVER['SCRIPT_NAME'] != '/manager/media/browser/mcpuk/browse.php')) {
                         $newFlag = true;
                     }
                     break;
                 case 'managerfrontonly':
-                    if ($this->app->isLoggedIn('mgr')  && ($_SERVER['SCRIPT_NAME'] != '/manager/index.php' &&  $_SERVER['SCRIPT_NAME'] !='/manager/media/browser/mcpuk/browse.php')) {
+                    if ($this->app->isLoggedIn('mgr') && ($_SERVER['SCRIPT_NAME'] != '/manager/index.php' &&  $_SERVER['SCRIPT_NAME'] != '/manager/media/browser/mcpuk/browse.php')) {
                         $newFlag = true;
                     }
                     break;
-
             }
 
             $this->app['config']->set('tracy.active', $newFlag);
